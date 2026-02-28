@@ -404,9 +404,13 @@ class AgentLoop:
                 message_tool.start_turn()
 
         history = session.get_history(max_messages=self.memory_window)
+        
+        # FIX: Anchor the model's attention to stop it from re-answering old history
+        wrapped_content = f"--- END OF HISTORY ---\n\nCURRENT USER REQUEST (Answer ONLY this, do NOT answer previous questions again):\n{msg.content}"
+        
         initial_messages = self.context.build_messages(
             history=history,
-            current_message=msg.content,
+            current_message=wrapped_content,
             media=msg.media if msg.media else None,
             channel=msg.channel, chat_id=msg.chat_id,
         )
